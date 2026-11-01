@@ -3,12 +3,21 @@ import { Agenda } from '@/src/types/agenda'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { api } from '@/src/services/api';
 import { rotuloStatus, classeStatus } from '@/src/utils/status';
 import { Modal } from '@/src/components/CardAgenda';
 
-export default function AgendaPesquisada () {
+// useSearchParams exige Suspense para a página passar no build de produção
+export default function PaginaPesquisa () {
+  return (
+    <Suspense>
+      <AgendaPesquisada />
+    </Suspense>
+  )
+}
+
+function AgendaPesquisada () {
   const searchParams = useSearchParams()
   const [eventos, setEventos] = useState<Agenda[]>([])
   const [parametrosAgenda, setParametrosAgenda] = useState({Editar: false, Criar: false, Aberto: false})
