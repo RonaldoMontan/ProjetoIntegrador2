@@ -5,6 +5,7 @@ import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 import { api } from '@/src/services/api';
 import { Cliente } from '@/src/types/cliente';
 import { mascaraTelefone } from '@/src/utils/telefone';
+import { mascaraData, dataParaIso, isoParaData } from '@/src/utils/dataHora';
 
 const clienteVazio: Cliente = { id: null, descricao: '', telefone: '', dataNascimento: '' }
 
@@ -33,10 +34,21 @@ export default function Clientes() {
   async function salvar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
+    // no formulário a data fica como "DD/MM/AAAA"; a API recebe "AAAA-MM-DD"
+    const nascimento = dataParaIso(cliente.dataNascimento || '')
+    if (!nascimento) {
+      setMensagem('Data de nascimento inválida: use DD/MM/AAAA')
+      return
+    }
+    if (new Date(`${nascimento}T00:00:00`) > new Date()) {
+      setMensagem('A data de nascimento não pode ser no futuro')
+      return
+    }
+
     const dados = {
       descricao: cliente.descricao,
       telefone: cliente.telefone || null,
-      dataNascimento: cliente.dataNascimento || null
+      dataNascimento: nascimento
     }
 
     if (cliente.id) {
@@ -63,7 +75,7 @@ export default function Clientes() {
     setCliente({
       ...c,
       telefone: mascaraTelefone(c.telefone || ''),
-      dataNascimento: c.dataNascimento ? c.dataNascimento.split('T')[0] : ''
+      dataNascimento: c.dataNascimento ? isoParaData(c.dataNascimento.split('T')[0]) : ''
     })
   }
 
@@ -93,11 +105,14 @@ export default function Clientes() {
           </div>
           <div>
             <label htmlFor='dataNascimento'>Data de nascimento:</label>
+            {/* campo de texto com máscara: o input date nativo muda a ordem dia/mês conforme o idioma do navegador */}
             <input
               id='dataNascimento'
-              type='date'
+              type='text'
+              inputMode='numeric'
+              placeholder='DD/MM/AAAA'
               value={cliente.dataNascimento || ''}
-              onChange={(e) => setCliente({ ...cliente, dataNascimento: e.target.value })}
+              onChange={(e) => setCliente({ ...cliente, dataNascimento: mascaraData(e.target.value) })}
               required/>
           </div>
           <div>

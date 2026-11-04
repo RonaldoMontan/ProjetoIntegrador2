@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mascaraData, mascaraHora, formatarData, formatarHora, isoParaData, montarDataHora, somarMinutos } from './dataHora'
+import { mascaraData, mascaraHora, formatarData, formatarHora, isoParaData, montarDataHora, somarMinutos, dataParaIso } from './dataHora'
 
 describe('máscaras de digitação', () => {
   it('formata a data enquanto digita', () => {
@@ -35,6 +35,25 @@ describe('montarDataHora', () => {
     expect(montarDataHora('27/10/2026', '08:60')).toBeNull()
     expect(montarDataHora('27/10/2026', '8:30')).toBeNull()
     expect(montarDataHora('27-10-2026', '08:30')).toBeNull()
+  })
+})
+
+describe('data de nascimento', () => {
+  it('digitar 22092002 resulta em 22/09/2002, com o dia antes do mês', () => {
+    const digitado = mascaraData('22092002')
+    expect(digitado).toBe('22/09/2002')
+    expect(dataParaIso(digitado)).toBe('2002-09-22')
+  })
+
+  it('volta para DD/MM/AAAA ao editar uma cliente', () => {
+    expect(isoParaData(dataParaIso('07/01/1999')!)).toBe('07/01/1999')
+  })
+
+  it('recusa data incompleta, sem ano ou inexistente', () => {
+    expect(dataParaIso('22/09')).toBeNull()
+    expect(dataParaIso('22/09/02')).toBeNull()
+    expect(dataParaIso('30/02/2002')).toBeNull()
+    expect(dataParaIso('22/13/2002')).toBeNull()
   })
 })
 

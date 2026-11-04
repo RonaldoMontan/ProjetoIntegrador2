@@ -29,6 +29,14 @@ export function isoParaData(iso: string) {
   return `${dia}/${mes}/${ano}`
 }
 
+// "DD/MM/AAAA" para "AAAA-MM-DD" (formato que a API recebe); null se incompleta ou inexistente
+export function dataParaIso(dataTexto: string) {
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataTexto)) return null
+  const data = montarDataHora(dataTexto, '00:00')
+  if (!data) return null
+  return `${data.getFullYear()}-${pad(data.getMonth() + 1)}-${pad(data.getDate())}`
+}
+
 // Junta "DD/MM" ou "DD/MM/AAAA" com "HH:MM" no horário local; null se inválido.
 // Sem ano, usa o ano atual.
 export function montarDataHora(dataTexto: string, horaTexto: string): Date | null {
